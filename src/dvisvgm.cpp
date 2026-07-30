@@ -31,20 +31,14 @@
 #include "CommandLine.hpp"
 #include "DVIToSVG.hpp"
 #include "DVIToSVGActions.hpp"
-#include "EPSToSVG.hpp"
 #include "FileFinder.hpp"
 #include "FileSystem.hpp"
 #include "Font.hpp"
 #include "FontEngine.hpp"
-#include "Ghostscript.hpp"
 #include "HashFunction.hpp"
 #include "HyperlinkManager.hpp"
 #include "Message.hpp"
 #include "PageSize.hpp"
-#include "PDFHandler.hpp"
-#include "PDFToSVG.hpp"
-#include "PSInterpreter.hpp"
-#include "PsSpecialHandler.hpp"
 #include "SignalHandler.hpp"
 #include "SourceInput.hpp"
 #include "optimizer/SVGOptimizer.hpp"
@@ -55,6 +49,18 @@
 #include "XXHashFunction.hpp"
 #include "utility.hpp"
 #include "version.hpp"
+
+#ifndef DISABLE_IMAGE_FORMATS
+#include "EPSToSVG.hpp"
+#include "PDFToSVG.hpp"
+#endif
+
+#if !defined(DISABLE_GS) || !defined(DISABLE_IMAGE_FORMATS)
+#include "Ghostscript.hpp"
+#include "PDFHandler.hpp"
+#include "PSInterpreter.hpp"
+#include "PsSpecialHandler.hpp"
+#endif
 
 #ifndef DISABLE_WOFF
 #include <brotli/encode.h>
@@ -268,8 +274,10 @@ static void print_version (bool extended) {
 		versionInfo.add("potrace", strchr(potrace_version(), ' '));
 		versionInfo.add("xxhash", XXH64HashFunction::version(), 3, 100);
 		versionInfo.add("zlib", zlibVersion());
+#if !defined(DISABLE_GS) || !defined(DISABLE_IMAGE_FORMATS)
 		versionInfo.add("Ghostscript", Ghostscript().revisionstr(), true);
 		versionInfo.add("mutool", PDFHandler::mutoolVersion(), true);
+#endif
 #ifndef DISABLE_WOFF
 		versionInfo.add("brotli", BrotliEncoderVersion(), 3, 0x1000);
 //		versionInfo.add("woff2", woff2::version, 3, 0x100);
@@ -372,21 +380,25 @@ static void set_variables (const CommandLine &cmdline) {
 	PhysicalFont::METAFONT_MAG = max(1.0, cmdline.magOpt.value());
 	XMLString::DECIMAL_PLACES = max(0, min(6, cmdline.precisionOpt.value()));
 	XMLNode::KEEP_ENCODED_FILES = cmdline.keepOpt.given();
+#if !defined(DISABLE_GS) || !defined(DISABLE_IMAGE_FORMATS)
 	PsSpecialHandler::COMPUTE_CLIPPATHS_INTERSECTIONS = cmdline.clipjoinOpt.given();
 	PsSpecialHandler::SHADING_SEGMENT_OVERLAP = cmdline.gradOverlapOpt.given();
 	PsSpecialHandler::SHADING_SEGMENT_SIZE = max(1, cmdline.gradSegmentsOpt.value());
 	PsSpecialHandler::SHADING_SIMPLIFY_DELTA = cmdline.gradSimplifyOpt.value();
 	PsSpecialHandler::BITMAP_FORMAT = util::tolower(cmdline.bitmapFormatOpt.value());
+#endif
 #ifdef TTFDEBUG
 	ttf::TTFWriter::CREATE_PS_GLYPH_OUTLINES = cmdline.debugGlyphsOpt.given();
 #endif
 	SVGTree::EMBED_BITMAP_DATA = cmdline.embedBitmapsOpt.given();
+#if !defined(DISABLE_GS) || !defined(DISABLE_IMAGE_FORMATS)
 	if (!PSInterpreter::imageDeviceKnown(PsSpecialHandler::BITMAP_FORMAT)) {
 		ostringstream oss;
 		oss << "unknown image format '" << PsSpecialHandler::BITMAP_FORMAT << "'\nknown formats:\n";
 		PSInterpreter::listImageDeviceInfos(oss);
 		throw CL::CommandLineException(oss.str());
 	}
+#endif
 	if (cmdline.optimizeOpt.given()) {
 		SVGOptimizer::MODULE_SEQUENCE = cmdline.optimizeOpt.value();
 		vector<string> modnames;
@@ -417,7 +429,11 @@ static void timer_message (double start_time, const pair<int,int> *pageinfo) {
 
 
 static void convert_file (size_t fnameIndex, const CommandLine &cmdline) {
+#ifndef DISABLE_IMAGE_FORMATS
 	const char *suffix = cmdline.epsOpt.given() ? "eps" : cmdline.pdfOpt.given() ? "pdf" : "dvi";
+#else
+	const char *suffix = "dvi";
+#endif
 	string inputfile = ensure_suffix(cmdline.filenames()[fnameIndex], suffix);
 	SourceInput srcin(inputfile);
 	if (!srcin.getInputStream(true))
@@ -430,6 +446,7 @@ static void convert_file (size_t fnameIndex, const CommandLine &cmdline) {
 					  cmdline.zipOpt.given() ? cmdline.zipOpt.value() : 0);
 	out.setFileNumbers(fnameIndex+1, cmdline.filenames().size());
 	pair<int,int> pageinfo;
+#ifndef DISABLE_IMAGE_FORMATS
 	if (cmdline.epsOpt.given() || cmdline.pdfOpt.given()) {
 		auto img2svg = unique_ptr<ImageToSVG>(
 				cmdline.epsOpt.given()
@@ -441,6 +458,7 @@ static void convert_file (size_t fnameIndex, const CommandLine &cmdline) {
 		timer_message(start_time, img2svg->isSinglePageFormat() ? nullptr : &pageinfo);
 	}
 	else {
+#endif
 		init_fontmap(cmdline);
 		DVIToSVG dvi2svg(srcin.getInputStream(), out);
 		if (!list_page_hashes(cmdline, dvi2svg)) {
@@ -454,7 +472,9 @@ static void convert_file (size_t fnameIndex, const CommandLine &cmdline) {
 			dvi2svg.convert(cmdline.pageOpt.value(), &pageinfo);
 			timer_message(start_time, &pageinfo);
 		}
+#ifndef DISABLE_IMAGE_FORMATS
 	}
+#endif
 }
 
 
@@ -462,6 +482,10 @@ int main (int argc, char *argv[]) {
 	try {
 		CommandLine cmdline;
 		cmdline.parse(argc, argv);
+#ifdef DISABLE_IMAGE_FORMATS
+		if (cmdline.epsOpt.given() || cmdline.pdfOpt.given())
+			throw CL::CommandLineException("EPS and PDF input support was disabled at build time");
+#endif
 		if (argc == 1 || cmdline.helpOpt.given()) {
 			cmdline.help(cout, cmdline.helpOpt.value());
 			return 0;
@@ -495,7 +519,11 @@ int main (int argc, char *argv[]) {
 			throw MessageException("no input file given");
 
 		SignalHandler::instance().start();
+#ifndef DISABLE_IMAGE_FORMATS
 		size_t numFiles = cmdline.epsOpt.given() ? cmdline.filenames().size() : 1;
+#else
+		size_t numFiles = 1;
+#endif
 		for (size_t i=0; i < numFiles; i++)
 			convert_file(i, cmdline);
 	}
@@ -503,10 +531,12 @@ int main (int argc, char *argv[]) {
 		Message::estream() << "\nDVI error: " << e.what() << '\n';
 		return -1;
 	}
+#if !defined(DISABLE_GS) || !defined(DISABLE_IMAGE_FORMATS)
 	catch (PSException &e) {
 		Message::estream() << "\nPostScript error: " << e.what() << '\n';
 		return -2;
 	}
+#endif
 	catch (XMLParserException &e) {
 		Message::estream() << "\nXML error: " << e.what() << '\n';
 		return -5;

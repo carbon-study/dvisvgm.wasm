@@ -93,6 +93,19 @@ AS_IF([test "x$enable_gs" != "xyes"],
 	[AC_DEFINE([DISABLE_GS], [1], [Set to 1 if PostScript support should be disabled])])
 AM_CONDITIONAL([ENABLE_GS], [test "x$enable_gs" = "xyes"])
 
+AC_ARG_ENABLE([image-formats],
+	[AS_HELP_STRING([--disable-image-formats], [Disable EPS and PDF input support @<:@default=no@:>@])],
+	[],
+	[enable_image_formats=yes])
+AS_IF([test "x$enable_image_formats" != "xyes"],
+	[AC_DEFINE([DISABLE_IMAGE_FORMATS], [1], [Define if EPS and PDF input support is disabled])])
+AM_CONDITIONAL([ENABLE_IMAGE_FORMATS], [test "x$enable_image_formats" = "xyes"])
+
+# The PostScript interpreter stack is needed by either PostScript specials or
+# direct EPS/PDF conversion. It can only be omitted when both are disabled.
+AM_CONDITIONAL([BUILD_PS],
+	[test "x$enable_gs" = "xyes" || test "x$enable_image_formats" = "xyes"])
+
 # Check for pkg-config
 PKG_PROG_PKG_CONFIG
 

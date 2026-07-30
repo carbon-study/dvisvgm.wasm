@@ -305,11 +305,13 @@ RangeMapTest_SOURCES = RangeMapTest.cpp testutil.hpp
 RangeMapTest_CPPFLAGS = -I$(dvisvgm_srcdir)/tests/gtest/include $(LIBS_CFLAGS)
 RangeMapTest_LDADD = $(TESTLIBS)
 
+if BUILD_PS
 TESTS += ShadingPatchTest
 check_PROGRAMS += ShadingPatchTest
 ShadingPatchTest_SOURCES = ShadingPatchTest.cpp testutil.hpp
 ShadingPatchTest_CPPFLAGS = -I$(dvisvgm_srcdir)/tests/gtest/include $(LIBS_CFLAGS)
 ShadingPatchTest_LDADD = $(TESTLIBS)
+endif
 
 TESTS += SpecialManagerTest
 check_PROGRAMS += SpecialManagerTest
@@ -359,11 +361,13 @@ SVGOutputTest_SOURCES = SVGOutputTest.cpp testutil.hpp
 SVGOutputTest_CPPFLAGS = -I$(dvisvgm_srcdir)/tests/gtest/include $(LIBS_CFLAGS)
 SVGOutputTest_LDADD = $(TESTLIBS)
 
+if BUILD_PS
 TESTS += TensorProductPatchTest
 check_PROGRAMS += TensorProductPatchTest
 TensorProductPatchTest_SOURCES = TensorProductPatchTest.cpp testutil.hpp
 TensorProductPatchTest_CPPFLAGS = -I$(dvisvgm_srcdir)/tests/gtest/include $(LIBS_CFLAGS)
 TensorProductPatchTest_LDADD = $(TESTLIBS)
+endif
 
 TESTS += TFMReaderTest
 check_PROGRAMS += TFMReaderTest
@@ -383,11 +387,13 @@ TpicSpecialTest_SOURCES = TpicSpecialTest.cpp testutil.hpp
 TpicSpecialTest_CPPFLAGS = -I$(dvisvgm_srcdir)/tests/gtest/include $(LIBS_CFLAGS)
 TpicSpecialTest_LDADD = $(TESTLIBS)
 
+if BUILD_PS
 TESTS += TriangularPatchTest
 check_PROGRAMS += TriangularPatchTest
 TriangularPatchTest_SOURCES = TriangularPatchTest.cpp testutil.hpp
 TriangularPatchTest_CPPFLAGS = -I$(dvisvgm_srcdir)/tests/gtest/include $(LIBS_CFLAGS)
 TriangularPatchTest_LDADD = $(TESTLIBS)
+endif
 
 TESTS += UnicodeTest
 check_PROGRAMS += UnicodeTest

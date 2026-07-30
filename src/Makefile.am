@@ -76,8 +76,6 @@ libdvisvgm_la_SOURCES = \
 	EllipticalArc.hpp            EllipticalArc.cpp \
 	EmSpecialHandler.hpp         EmSpecialHandler.cpp \
 	EncFile.hpp                  EncFile.cpp \
-	EPSFile.hpp                  EPSFile.cpp \
-	EPSToSVG.hpp \
 	FileFinder.hpp               FileFinder.cpp \
 	FilePath.hpp                 FilePath.cpp \
 	FileSystem.hpp               FileSystem.cpp \
@@ -94,7 +92,6 @@ libdvisvgm_la_SOURCES = \
 	GFGlyphTracer.hpp            GFGlyphTracer.cpp \
 	GFReader.hpp                 GFReader.cpp \
 	GFTracer.hpp                 GFTracer.cpp \
-	Ghostscript.hpp              Ghostscript.cpp \
 	Glyph.hpp \
 	GlyphTracerMessages.hpp \
 	GraphicsPath.hpp \
@@ -102,7 +99,6 @@ libdvisvgm_la_SOURCES = \
 	HashFunction.hpp             HashFunction.cpp \
 	HtmlSpecialHandler.hpp       HtmlSpecialHandler.cpp \
 	HyperlinkManager.hpp         HyperlinkManager.cpp \
-	ImageToSVG.hpp               ImageToSVG.cpp \
 	InputBuffer.hpp              InputBuffer.cpp \
 	InputReader.hpp              InputReader.cpp \
 	JFM.hpp                      JFM.cpp \
@@ -123,20 +119,12 @@ libdvisvgm_la_SOURCES = \
 	Pair.hpp \
 	PapersizeSpecialHandler.hpp  PapersizeSpecialHandler.cpp \
 	PathClipper.hpp              PathClipper.cpp \
-	PDFHandler.hpp               PDFHandler.cpp \
 	PDFParser.hpp                PDFParser.cpp \
 	PdfSpecialHandler.hpp        PdfSpecialHandler.cpp \
-	PDFToSVG.hpp                 PDFToSVG.cpp \
 	PreScanDVIReader.hpp         PreScanDVIReader.cpp \
 	Process.hpp                  Process.cpp \
-	psdefs.cpp \
-	PSInterpreter.hpp            PSInterpreter.cpp \
-	PSPattern.hpp                PSPattern.cpp \
-	PSPreviewHandler.hpp         PSPreviewHandler.cpp \
-	PsSpecialHandler.hpp         PsSpecialHandler.cpp \
 	PsSpecialHandlerProxy.hpp    PsSpecialHandlerProxy.cpp \
 	RangeMap.hpp                 RangeMap.cpp \
-	ShadingPatch.hpp             ShadingPatch.cpp \
 	SignalHandler.hpp            SignalHandler.cpp \
 	SourceInput.hpp              SourceInput.cpp \
 	SpecialActions.hpp           SpecialActions.cpp \
@@ -154,12 +142,10 @@ libdvisvgm_la_SOURCES = \
 	SVGSingleCharTextHandler.hpp SVGSingleCharTextHandler.cpp \
 	SVGTree.hpp                  SVGTree.cpp \
 	System.hpp                   System.cpp \
-	TensorProductPatch.hpp       TensorProductPatch.cpp \
 	Terminal.hpp                 Terminal.cpp \
 	TFM.hpp                      TFM.cpp \
 	ToUnicodeMap.hpp             ToUnicodeMap.cpp \
 	TpicSpecialHandler.hpp       TpicSpecialHandler.cpp \
-	TriangularPatch.hpp          TriangularPatch.cpp \
 	Unicode.hpp                  Unicode.cpp \
 	utility.hpp                  utility.cpp \
 	VectorIterator.hpp \
@@ -172,6 +158,28 @@ libdvisvgm_la_SOURCES = \
 	XMLString.hpp                XMLString.cpp \
 	XXHashFunction.hpp \
 	ZLibOutputStream.hpp
+
+if BUILD_PS
+libdvisvgm_la_SOURCES += \
+	Ghostscript.hpp              Ghostscript.cpp \
+	PDFHandler.hpp               PDFHandler.cpp \
+	psdefs.cpp \
+	PSInterpreter.hpp            PSInterpreter.cpp \
+	PSPattern.hpp                PSPattern.cpp \
+	PSPreviewHandler.hpp         PSPreviewHandler.cpp \
+	PsSpecialHandler.hpp         PsSpecialHandler.cpp \
+	ShadingPatch.hpp             ShadingPatch.cpp \
+	TensorProductPatch.hpp       TensorProductPatch.cpp \
+	TriangularPatch.hpp          TriangularPatch.cpp
+endif BUILD_PS
+
+if ENABLE_IMAGE_FORMATS
+libdvisvgm_la_SOURCES += \
+	EPSFile.hpp                  EPSFile.cpp \
+	EPSToSVG.hpp \
+	ImageToSVG.hpp               ImageToSVG.cpp \
+	PDFToSVG.hpp                 PDFToSVG.cpp
+endif ENABLE_IMAGE_FORMATS
 
 libdvisvgm_la_LIBADD = fonts/libbase14fonts.la optimizer/liboptimizer.la
 
