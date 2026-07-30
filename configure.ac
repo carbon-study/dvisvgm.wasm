@@ -73,15 +73,23 @@ AC_SUBST(KPSE_CFLAGS)
 AC_SUBST(KPSE_LIBS)
 
 # Check how to link Ghostscript
-have_libgs=yes
-AC_CHECK_HEADER([ghostscript/iapi.h],
-	[AC_CHECK_LIB(gs, gsapi_revision,, [have_libgs=no])],
-	[have_libgs=no])
-AS_IF([test "x$have_libgs" = "xno"],
-	# Ghostscript not found, check for dlopen
-	[AC_CHECK_LIB(dl, dlopen,,
-		[AC_DEFINE(DISABLE_GS, 1, [Set to 1 if PostScript support should be disabled])]
-		[AC_MSG_WARN(PostScript support disabled)])])
+AC_ARG_ENABLE([gs],
+	[AS_HELP_STRING([--disable-gs], [Disable Ghostscript support @<:@default=no@:>@])],
+	[],
+	[enable_gs=yes])
+AS_IF([test "x$enable_gs" = "xyes"],
+	[have_libgs=yes
+	AC_CHECK_HEADER([ghostscript/iapi.h],
+		[AC_CHECK_LIB(gs, gsapi_revision,, [have_libgs=no])],
+		[have_libgs=no])
+	AS_IF([test "x$have_libgs" = "xno"],
+		# Ghostscript not found, check for dlopen
+		[AC_CHECK_LIB(dl, dlopen,,
+			[enable_gs=no
+			AC_MSG_WARN([PostScript support disabled])])])])
+AS_IF([test "x$enable_gs" != "xyes"],
+	[AC_DEFINE([DISABLE_GS], [1], [Set to 1 if PostScript support should be disabled])])
+AM_CONDITIONAL([ENABLE_GS], [test "x$enable_gs" = "xyes"])
 
 # Check for pkg-config
 PKG_PROG_PKG_CONFIG

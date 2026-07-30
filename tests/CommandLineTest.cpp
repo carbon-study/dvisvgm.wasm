@@ -62,11 +62,19 @@ TEST(CommandLineTest, noarg_long) {
 
 TEST(CommandLineTest, arg_short) {
 	CommandLine cmd;
-	const char *args[] = {"progname", "-P", "-p5", "-r45", "-omyfile.xyz", "-ayes", "-v3", "-"};
+	const char *args[] = {"progname",
+#ifndef DISABLE_GS
+		"-P",
+#endif
+		"-p5", "-r45", "-omyfile.xyz", "-ayes", "-v3", "-"};
 	char **argv = const_cast<char**>(args);
-	cmd.parse(8, argv);
+	cmd.parse(sizeof(args)/sizeof(*args), argv);
 
+#ifndef DISABLE_GS
 	EXPECT_TRUE(cmd.pdfOpt.given());
+#else
+	EXPECT_FALSE(cmd.pdfOpt.given());
+#endif
 	EXPECT_DOUBLE_EQ(cmd.progressOpt.value(), 0.5);
 	EXPECT_TRUE(cmd.pageOpt.given());
 	EXPECT_EQ(cmd.pageOpt.value(), "5");

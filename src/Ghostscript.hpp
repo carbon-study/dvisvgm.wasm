@@ -46,6 +46,7 @@ struct Ghostscript {
 	Ghostscript () {}
 	Ghostscript (int argc, const char **argv, void *caller=0) {}
 	bool init (int argc, const char **argv, void *caller=0) {return false;}
+	void finalize () {}
 	bool available () {return false;}
 	bool revision (gsapi_revision_t *r) const {return false;}
 	int revision () const {return 0;}

@@ -193,11 +193,13 @@ GFReaderTest_SOURCES = GFReaderTest.cpp testutil.hpp
 GFReaderTest_CPPFLAGS = -I$(dvisvgm_srcdir)/tests/gtest/include $(LIBS_CFLAGS)
 GFReaderTest_LDADD = $(TESTLIBS)
 
+if ENABLE_GS
 TESTS += GhostscriptTest
 check_PROGRAMS += GhostscriptTest
 GhostscriptTest_SOURCES = GhostscriptTest.cpp testutil.hpp
 GhostscriptTest_CPPFLAGS = -I$(dvisvgm_srcdir)/tests/gtest/include $(LIBS_CFLAGS)
 GhostscriptTest_LDADD = $(TESTLIBS)
+endif
 
 TESTS += GraphicsPathParserTest
 check_PROGRAMS += GraphicsPathParserTest
@@ -289,11 +291,13 @@ PDFParserTest_SOURCES = PDFParserTest.cpp testutil.hpp
 PDFParserTest_CPPFLAGS = -I$(dvisvgm_srcdir)/tests/gtest/include $(LIBS_CFLAGS)
 PDFParserTest_LDADD = $(TESTLIBS)
 
+if ENABLE_GS
 TESTS += PSInterpreterTest
 check_PROGRAMS += PSInterpreterTest
 PSInterpreterTest_SOURCES = PSInterpreterTest.cpp testutil.hpp
 PSInterpreterTest_CPPFLAGS = -I$(dvisvgm_srcdir)/tests/gtest/include $(LIBS_CFLAGS)
 PSInterpreterTest_LDADD = $(TESTLIBS)
+endif
 
 TESTS += RangeMapTest
 check_PROGRAMS += RangeMapTest
