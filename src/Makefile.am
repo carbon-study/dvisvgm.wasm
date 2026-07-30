@@ -5,7 +5,7 @@
 
 bin_PROGRAMS     = dvisvgm
 noinst_LTLIBRARIES = libdvisvgm.la
-SUBDIRS = fonts optimizer ttf
+SUBDIRS = fonts optimizer
 
 dvisvgm_SOURCES = \
 	CommandLine.hpp \
