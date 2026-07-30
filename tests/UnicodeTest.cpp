@@ -113,6 +113,7 @@ TEST(UnicodeTest, aglNameToCodepoint2) {
 	EXPECT_EQ(Unicode::aglNameToCodepoint("uni1234.suffix"), 0x1234);
 	EXPECT_EQ(Unicode::aglNameToCodepoint("uni1234_part2"), 0x1234);
 	EXPECT_EQ(Unicode::aglNameToCodepoint("uni12345678"), 0x1234);
+	EXPECT_EQ(Unicode::aglNameToCodepoint("uni"), 0);
 	EXPECT_EQ(Unicode::aglNameToCodepoint("uni123"), 0);
 	EXPECT_EQ(Unicode::aglNameToCodepoint("uni12345"), 0);
 	EXPECT_EQ(Unicode::aglNameToCodepoint("uni1234567"), 0);
@@ -126,6 +127,7 @@ TEST(UnicodeTest, aglNameToCodepoint2) {
 	EXPECT_EQ(Unicode::aglNameToCodepoint("u1234.suffix"), 0x1234);
 	EXPECT_EQ(Unicode::aglNameToCodepoint("u1234_part2"), 0x1234);
 	EXPECT_EQ(Unicode::aglNameToCodepoint("u12345678"), 0);
+	EXPECT_EQ(Unicode::aglNameToCodepoint("u1"), 0);
 	EXPECT_EQ(Unicode::aglNameToCodepoint("u123.suffix"), 0);
 	EXPECT_EQ(Unicode::aglNameToCodepoint("u123"), 0);
 	EXPECT_EQ(Unicode::aglNameToCodepoint("u12345"), 0x12345);
@@ -139,9 +141,12 @@ TEST(UnicodeTest, aglNameToCodepoint2) {
 
 
 TEST(UnicodeTest, toLigature) {
+	EXPECT_EQ(Unicode::toLigature("AA"), 0xA732u);
 	EXPECT_EQ(Unicode::toLigature("ffi"), 0xFB03u);
 	EXPECT_EQ(Unicode::toLigature("\u0254e"), 0xAB62u);
 	EXPECT_EQ(Unicode::toLigature("Tz"), 0xA728u);
+	EXPECT_EQ(Unicode::toLigature("vy"), 0xA761u);
 	EXPECT_EQ(Unicode::toLigature("\u0254ex"), 0u);
+	EXPECT_EQ(Unicode::toLigature("XX"), 0u);
 	EXPECT_EQ(Unicode::toLigature(""), 0u);
 }

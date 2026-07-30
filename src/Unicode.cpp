@@ -187,7 +187,7 @@ uint32_t Unicode::toLigature (const string &nonlig) {
 	struct Ligature {
 		const char *nonlig;
 		uint32_t lig;
-	} ligatures[39] = {
+	} ligatures[] = {
 		{"AA",  0xA732}, {"aa", 0xA733},
 		{"AE",  0x00C6}, {"ae", 0x00E6},
 		{"AO",  0xA734}, {"ao", 0xA735},
@@ -202,17 +202,16 @@ uint32_t Unicode::toLigature (const string &nonlig) {
 		{"fl",  0xFB02},
 		{"Hv",  0x01F6}, {"hv", 0x0195},
 		{"lb",  0x2114},
-		{"lL",  0x1EFA}, {"ll", 0x1EFB},
+		{"LL",  0x1EFA}, {"ll", 0x1EFB},
 		{"OE",  0x0152}, {"oe", 0x0153},
 		{"OO",  0xA74E}, {"oo", 0xA74F},
-		{"OO",  0xA74E},
 		{"\u0254e", 0xAB62},
 		{"\u017Fs", 0x1E9E}, {"\u017Az", 0x00DF},
 		{"Tz",  0xA728}, {"tz",  0xA729},
 		{"ue",  0x1D6B},
 		{"uo",  0xAB63},
-		{"VV",  0x0057}, {"tz",  0x0077},
-		{"VY",  0xA760}, {"tz",  0xA761},
+		{"VV",  0x0057}, {"vv",  0x0077},
+		{"VY",  0xA760}, {"vy",  0xA761},
 	};
 	auto it = algo::find_if(ligatures, [&nonlig](const Ligature &l) {
 		return l.nonlig == nonlig;
@@ -230,9 +229,9 @@ uint32_t Unicode::toLigature (const string &nonlig) {
 static int32_t extract_codepoint_from_name (const string &name) {
 	size_t offset=1;
 	auto is_hex_digit = [](char c) {return isdigit(c) || (c >= 'A' && c <= 'F');};
-	if (name.substr(0, 3) == "uni" && is_hex_digit(name[4]) && name.length() >= 7)
+	if (name.length() >= 7 && name.substr(0, 3) == "uni" && is_hex_digit(name[4]))
 		offset = 3;
-	else if (name[0] != 'u' || !is_hex_digit(name[1]) || name.length() < 5)
+	else if (name.length() < 5 || name[0] != 'u' || !is_hex_digit(name[1]))
 		return 0;
 
 	string::const_iterator it = name.begin()+offset;
