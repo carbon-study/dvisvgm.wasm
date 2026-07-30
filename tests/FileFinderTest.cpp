@@ -29,6 +29,8 @@ using std::ifstream;
 TEST(FileFinderTest, find_base_file) {
 	const char *path = FileFinder::instance().lookup("FileFinderTest.cpp");
 	EXPECT_TRUE(path);
+	path = FileFinder::instance().lookup(SRCDIR"/FileFinderTest.cpp");
+	EXPECT_TRUE(path);
 	path = FileFinder::instance().lookup("Does-not-exist");
 	EXPECT_FALSE(path);
 	path = FileFinder::instance().lookup("frktest.dvi");

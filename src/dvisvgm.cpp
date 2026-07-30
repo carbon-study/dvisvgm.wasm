@@ -277,7 +277,7 @@ static void print_version (bool extended) {
 #endif
 #ifdef MIKTEX
 		versionInfo.add("MiKTeX", FileFinder::instance().version());
-#else
+#elif !defined(DISABLE_KPATHSEA)
 		versionInfo.add("kpathsea", FileFinder::instance().version());
 #endif
 		versionInfo.write(cout);

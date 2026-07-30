@@ -21,7 +21,7 @@
 #include <config.h>
 #ifdef MIKTEX
 	#include "MiKTeXCom.hpp"
-#else
+#elif !defined(DISABLE_KPATHSEA)
 	#ifdef KPSE_CXX_UNSAFE
 	extern "C" {
 	#endif
@@ -56,7 +56,7 @@ FileFinder::FileFinder () {
 	addLookupDir(".");  // always lookup files in the current working directory
 #ifdef MIKTEX
 	_miktex = util::make_unique<MiKTeXCom>();
-#else
+#elif !defined(DISABLE_KPATHSEA)
 	kpse_set_program_name(_argv0.c_str(), _progname.c_str());
 	// enable tfm and mf generation (actually invoked by calls of kpse_make_tex)
 	kpse_set_program_enabled(kpse_tfm_format, 1, kpse_src_env);
@@ -83,7 +83,7 @@ FileFinder& FileFinder::instance () {
 std::string FileFinder::version () const {
 #ifdef MIKTEX
 	return _miktex->getVersion();
-#else
+#elif !defined(DISABLE_KPATHSEA)
 	if (const char *v = strrchr(KPSEVERSION, ' '))
 		return (std::string(KPSEVERSION).substr(0, 9) == "kpathsea ") ? v+1 : KPSEVERSION;
 	if (strlen(KPSEVERSION) > 0)
@@ -108,12 +108,20 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 	if (fname.empty())
 		return nullptr;
 
+	if (FilePath::isAbsolute(fname) && FileSystem::exists(fname)) {
+		_pathbuf = FilePath(fname, FilePath::PT_FILE).absolute();
+		return _pathbuf.c_str();
+	}
+
 	// try to lookup the file in the additionally specified directories
 	for (const std::string &dir : _additionalDirs) {
 		_pathbuf = dir+"/"+fname;
 		if (FileSystem::exists(_pathbuf))
 			return _pathbuf.c_str();
 	}
+#ifdef DISABLE_KPATHSEA
+	return nullptr;
+#else
 	std::string ext;
 	if (ftype)
 		ext = ftype;
@@ -193,6 +201,7 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 	}
 	return nullptr;
 #endif  // !MIKTEX
+#endif  // DISABLE_KPATHSEA
 }
 
 
@@ -238,7 +247,7 @@ const char* FileFinder::mktex (const std::string &fname) const {
 	std::string toolname = (ext == "tfm" ? "miktex-maketfm" : "miktex-makemf");
 	system((toolname+".exe "+fname).c_str());
 	path = findFile(fname, nullptr);
-#else
+#elif !defined(DISABLE_KPATHSEA)
 	kpse_file_format_type type = (ext == "tfm" ? kpse_tfm_format : kpse_mf_format);
 	path = kpse_make_tex(type, fname.c_str());
 #endif
@@ -281,7 +290,7 @@ const char* FileFinder::lookupExecutable (const std::string &fname, bool addSuff
 	}
 	catch (...) {
 	}
-#else
+#elif !defined(DISABLE_KPATHSEA)
 	// lookup executables in directory where dvisvgm is located
 	if (const char *path = kpse_var_value("SELFAUTOLOC")) {
 		_pathbuf = std::string(path) + "/" + fname;
@@ -292,6 +301,14 @@ const char* FileFinder::lookupExecutable (const std::string &fname, bool addSuff
 		if (FileSystem::exists(_pathbuf))
 			return _pathbuf.c_str();
 	}
+#else
+	_pathbuf = FilePath(_argv0, FilePath::PT_FILE).absolute(false) + "/" + fname;
+#ifdef _WIN32
+	if (addSuffix)
+		_pathbuf += ".exe";
+#endif
+	if (FileSystem::exists(_pathbuf))
+		return _pathbuf.c_str();
 #endif  // !MIKTEX
 	return nullptr;
 }
