@@ -41,6 +41,16 @@ HyperlinkManager& HyperlinkManager::instance () {
 }
 
 
+/** Clears all state collected while processing a document. */
+void HyperlinkManager::reset () {
+	_anchorType = AnchorType::NONE;
+	_depthThreshold = 0;
+	_linewidth = -1;
+	_base.clear();
+	_namedAnchors.clear();
+}
+
+
 void HyperlinkManager::addHrefAnchor (const string &uri) {
 	if (uri.empty() || uri[0] != '#')
 		return;

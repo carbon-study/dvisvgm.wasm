@@ -74,6 +74,15 @@ FontEngine& FontEngine::instance () {
 }
 
 
+/** Releases the face selected while processing the current document. */
+void FontEngine::reset () {
+	if (_currentFace && FT_Done_Face(_currentFace))
+		Message::estream(true) << "failed to release font\n";
+	_currentFace = nullptr;
+	_currentFont = nullptr;
+}
+
+
 string FontEngine::version () {
 	FT_Int major, minor, patch;
 	FT_Library &lib = instance()._library;

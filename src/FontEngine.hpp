@@ -43,6 +43,7 @@ class FontEngine {
 	public:
 		~FontEngine ();
 		static FontEngine& instance ();
+		void reset ();
 		static std::string version ();
 		bool setFont (const Font &font);
 		const Font* currentFont () const {return _currentFont;}

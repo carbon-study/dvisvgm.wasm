@@ -75,6 +75,7 @@ class FontManager {
 		void leaveVF ();
 		void assignVFChar (int c, std::vector<char> dvi);
 		void addUsedChar (const Font &font, int c);
+		void reset ();
 		void resetUsedChars ();
 		CharMap& getUsedChars ()  {return _usedChars;}
 		FontSet& getUsedFonts ()  {return _usedFonts;}

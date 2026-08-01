@@ -35,12 +35,15 @@
 #include "FileSystem.hpp"
 #include "Font.hpp"
 #include "FontEngine.hpp"
+#include "FontManager.hpp"
+#include "FontMap.hpp"
 #include "HashFunction.hpp"
 #include "HyperlinkManager.hpp"
 #include "Message.hpp"
 #include "PageSize.hpp"
 #include "SignalHandler.hpp"
 #include "SourceInput.hpp"
+#include "SpecialManager.hpp"
 #include "optimizer/SVGOptimizer.hpp"
 #include "SVGOutput.hpp"
 #include "System.hpp"
@@ -428,6 +431,22 @@ static void timer_message (double start_time, const pair<int,int> *pageinfo) {
 }
 
 
+/** Reset state owned by a previous invocation. This is normally redundant for
+ *  a command-line process, but embedders can invoke main() repeatedly in a
+ *  long-lived runtime (for example through Emscripten's callMain()). */
+static void reset_process_state () {
+	FontManager::instance().reset();
+	FontMap::instance().clear();
+	SpecialManager::instance().unregisterHandlers();
+	HyperlinkManager::instance().reset();
+	DVIToSVG::COMPUTE_PROGRESS = false;
+	DVIToSVG::TRACE_MODE = 0;
+	DVIToSVG::PAGE_HASH_SETTINGS = DVIToSVG::HashSettings();
+	SpecialActions::PROGRESSBAR_DELAY = 1000;
+	SVGOptimizer::MODULE_SEQUENCE.clear();
+}
+
+
 static void convert_file (size_t fnameIndex, const CommandLine &cmdline) {
 #ifndef DISABLE_IMAGE_FORMATS
 	const char *suffix = cmdline.epsOpt.given() ? "eps" : cmdline.pdfOpt.given() ? "pdf" : "dvi";
@@ -480,6 +499,7 @@ static void convert_file (size_t fnameIndex, const CommandLine &cmdline) {
 
 int main (int argc, char *argv[]) {
 	try {
+		reset_process_state();
 		CommandLine cmdline;
 		cmdline.parse(argc, argv);
 #ifdef DISABLE_IMAGE_FORMATS

@@ -400,6 +400,20 @@ void FontManager::addUsedChar (const Font &font, int c) {
 }
 
 
+/** Clears all font objects and DVI-local mappings of the current document. */
+void FontManager::reset () {
+	FontEngine::instance().reset();
+	_fonts.clear();
+	_num2id.clear();
+	_name2id.clear();
+	_vfnum2id.clear();
+	_vfStack = VfStack();
+	_vfFirstFontNumMap.clear();
+	_vfFirstFontMap.clear();
+	resetUsedChars();
+}
+
+
 void FontManager::resetUsedChars () {
 	_usedChars.clear();
 	_usedFonts.clear();

@@ -52,6 +52,7 @@ class HyperlinkManager {
 		void checkNewLine (SpecialActions &actions);
 		void createLink (std::string uri, SpecialActions &actions);
 		void createViews (unsigned pageno, SpecialActions &actions);
+		void reset ();
 		void setBaseUrl (const std::string &base) {_base = base;}
 		void setLineWidth (double w) {_linewidth = w;}
 		static HyperlinkManager& instance ();

@@ -131,3 +131,12 @@ TEST_F(FontManagerTest, getFontById) {
 	EXPECT_EQ(fm.getFont("cmr10"), fm.getFontById(0));
 	EXPECT_EQ(fm.getFont(12), fm.getFontById(3));
 }
+
+
+TEST_F(FontManagerTest, reset) {
+	fm.reset();
+	EXPECT_EQ(fm.getFont(10), nullptr);
+	EXPECT_EQ(fm.getFontById(0), nullptr);
+	EXPECT_EQ(fm.fontID("cmr10"), -1);
+	EXPECT_EQ(fm.registerFont(10, "cmr10", 1274110073, 10, 10), 0);
+}
