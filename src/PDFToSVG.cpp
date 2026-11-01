@@ -58,10 +58,13 @@ void PDFToSVG::checkGSAndFileFormat () {
 		ImageToSVG::checkGSAndFileFormat();
 	else {
 		if (!PDFHandler::available()) {
+			const char *pdfproc = getenv("DVISVGM_PDF_PROC");
+			if (pdfproc && strcmp(pdfproc, "mutool") == 0)
+				throw MessageException("can't convert PDF file (mutool not found)");
 			if (gsVersion() > 0) {
 				ostringstream oss;
 				oss << "To process PDF files, either Ghostscript < 10.01.0 or mutool is required.\n";
-				oss << "The installed Ghostscript version " << Ghostscript().revisionstr() << " is not supported.\n";
+				oss << "The installed Ghostscript version " << Ghostscript().revisionstr() << " is not supported.";
 				throw MessageException(oss.str());
 			}
 		}
